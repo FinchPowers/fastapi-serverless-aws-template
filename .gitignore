@@ -1,0 +1,40 @@
+# Logs
+logs
+*.log
+
+# Runtime data
+*.serverless
+*__pycache__
+
+# Dependency directories
+node_modules/
+
+# Optional npm cache directory
+.npm
+
+# dotenv environment variables file
+.env
+
+# Ignore virtual environment dir
+*venv
+
+# coverage reports
+.coverage
+
+# git swap files
+*.swp
+
+# tmp files... especially those from our makefile
+*.tmp
+
+# test-results xml output, meant for CircleCI consumption
+test-results
+
+# vim swap files
+*.swo
+
+# pyenv version definition
+*.python-version
+
+# mypy cache
+.mypy_cache

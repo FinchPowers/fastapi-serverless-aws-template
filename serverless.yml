@@ -1,0 +1,109 @@
+service: fastapi-serverless-aws-template
+configValidationMode: error
+frameworkVersion: ^3.34.0
+
+plugins:
+- serverless-python-requirements
+- serverless-plugin-include-dependencies
+- serverless-prune-plugin
+- serverless-plugin-log-retention
+custom:
+  logRetentionInDays: 365
+  pythonRequirements:
+    dockerizePip: true
+    slim: true
+    strip: false
+    useStaticCache: false
+    requirePoetryLockFile: true
+  authorizer:
+    name: TODO
+    arn: TODO
+    resultTtlInSeconds: 300
+    type: token
+    identityValidationExpression: ^Bearer [a-zA-Z0-9\-_]+?\.[a-zA-Z0-9\-_]+?\.([a-zA-Z0-9\-_]+)$
+  prune:
+    automatic: true
+    number: 10
+  cors:
+    # TODO - review this config if you really want to expose the API to the world or not
+    origin: *
+    allowCredentials: true
+
+provider:
+  name: aws
+  apiName: fastapi-serverless-aws-template
+  endpointType: regional
+  apiGateway:
+    description: TODO
+    minimumCompressionSize: 0    # in bytes, null = off
+    # Optional detailed Cloud Watch Metrics
+    metrics: true
+    apiKeySourceType: AUTHORIZER
+  runtime: python3.10
+  stage: ${opt:stage, 'dev'}
+  region: TODO
+  deploymentBucket:
+    name: TODO
+
+
+package:
+  patterns:
+  - '!**'
+  - src/**/*.py
+
+functions:
+  api:
+    handler: src.handler.handler
+    description: FastAPI endpoint
+    timeout: 30
+    memorySize: 1769 # exactly 1 vCPU
+    environment:
+      LOG_LEVEL: info
+      ORIGINS: ${self:custom.cors.origin, ""}
+    role: TODO
+    events:
+    ###
+    # open api related routes section
+    - http:
+        path: /openapi.json
+        method: GET
+        cors: ${self:custom.cors}
+    - http:
+        path: /docs
+        method: GET
+        cors: ${self:custom.cors}
+    - http:
+        path: /redoc
+        method: GET
+        cors: ${self:custom.cors}
+    # end of open api section
+    ###
+    # application methods, in the same order as the OpenApi docs
+    - http:
+        path: /stuff
+        method: GET
+        private: true
+        authorizer: ${self:custom.authorizer}
+        cors: ${self:custom..cors}
+    - http:
+        path: /token
+        method: GET
+        cors: ${self:custom.cors}
+
+
+resources:
+  Resources:
+    GatewayResponseDefault4XX:
+      Type: AWS::ApiGateway::GatewayResponse
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin:
+            Fn::Join:
+            - ''
+            - - "'"
+              - ${self:custom.cors.origin, ""}
+              - "'"
+          gatewayresponse.header.Access-Control-Allow-Credentials: "'true'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: ApiGatewayRestApi
