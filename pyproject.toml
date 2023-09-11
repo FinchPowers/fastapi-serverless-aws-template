@@ -41,7 +41,7 @@ line-length = 100
 select = ["B", "D", "E", "F", "I", "T20", "W", "N", "YTT", "ASYNC", "S", "A", "C4", "DTZ", "T10", "PIE", "PT", "RSE", "SLF", "SIM", "TCH", "PTH", "PGH", "PLC", "RUF", "RET"]
 # RUF001 can fix false positives like "L'individu" -> "Lindividu" (French word)
 ignore = ["D1", "D401", "D413", "N805", "PTH123", "RUF001"]
-unfixable = ["F401", "F841"]
+unfixable = ["F401", "F841", "SIM105"]
 pydocstyle = {convention = "google"}
 target-version = "py310"
 
